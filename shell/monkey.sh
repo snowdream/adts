@@ -24,7 +24,7 @@ usage() {
 }
 
 start_monkey(){
-  adb shell "monkey -p ${PACKAGE_NAME} --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 -v -v -v --throttle 500 1200000000 > /storage/sdcard0/monkey_log.txt"
+  adb shell "monkey -p ${PACKAGE_NAME} --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 -v -v -v --throttle 500 1200000000 > /storage/sdcard0/monkey_log.txt  &"
 }
 
 stop_monkey(){

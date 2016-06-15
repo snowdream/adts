@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 PACKAGE_NAME="com.autonavi.minimap"
-DEBUG=true
 
 check_device()
 {
@@ -25,25 +24,23 @@ usage() {
 }
 
 start_monkey(){
-	if [[ DEBUG ]]; then
-		echo "\$@=$@"
-	fi
-
-	while getopts ":p" opt; do
+  while getopts "p:" opt; do
     case $opt in
-        p)shift
-				  PACKAGE_NAME=$1  
-					echo "PACKAGE_NAME=$1"
-				  ;;
+        p)
+          PACKAGE_NAME=$OPTARG ;;
         \?) echo "Invalid param" ;;
     esac
- done
-	
-	
+  done
+ 
+  echo "Start Monkey: ${PACKAGE_NAME}"
+
+
   adb shell "monkey -p ${PACKAGE_NAME} --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 -v -v -v --throttle 500 1200000000 > /storage/sdcard0/monkey_log.txt  &"
 }
 
 stop_monkey(){
+	echo "Stop Monkey: ${PACKAGE_NAME}"
+
   adb shell ps | awk '/com\.android\.commands\.monkey/ { system("adb shell kill " $2) }'
 }
 
@@ -55,13 +52,10 @@ if [ $# == "0" ]; then
   exit
 fi
 
-if [[ DEBUG ]]; then
-	echo "\$1=$1"
-fi
-
 if [[ $1 == "--help" ]] ||  [[ $1 == "-h" ]] ; then
 	usage
 elif [[ $1 == "start"  ]]; then
+	shift
 	start_monkey $@
 elif [[ $1 == "stop"  ]]; then
 	stop_monkey

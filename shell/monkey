@@ -3,76 +3,74 @@ PACKAGE_NAME="com.autonavi.minimap"
 ROBUST=false
 
 check_device()
-{
-	DEVICE=`adb devices | awk 'NR>1 {print $1}'`
-	if [ -z ${DEVICE} ]; then
-		echo "No device connected, quit."
-    exit 1
-		return 1
-	else
-		return 0
-	fi
-	return ${DEVICE}
-}
+	{
+		DEVICE=`adb devices | awk 'NR>1 {print $1}'`
+		if [ -z $DEVICE ]; then
+			echo "No device connected, quit."
+			exit 1
+			return 1
+		else
+			return 0
+		fi
+		return $DEVICE
+	}
 
-usage() {
-  echo "Usage: $0 <command>"
-  echo "    start          -- start monkey"
-  echo "       -p <Package Name>          -- Package Name"
-  echo "       -r                         -- Robust Test"
-  echo "    stop           -- stop monkey"
-  echo "    --help|-h      -- help"
-  echo
-}
+	usage() {
+		echo "Usage: $0 <command>"
+		echo "    start          -- start monkey"
+		echo "       -p <Package Name>          -- Package Name"
+		echo "       -r                         -- Robust Test"
+		echo "    stop           -- stop monkey"
+		echo "    --help|-h      -- help"
+		echo
+	}
 
-start_monkey(){
-  while getopts "p:r" opt; do
-    case $opt in
-        p)
-          PACKAGE_NAME=$OPTARG ;;
-				r)
-				  ROBUST=true ;;
-        \?) 
-					usage
-				  exit 1;;
-    esac
-  done
- 
-  echo "Start Monkey: ${PACKAGE_NAME}"
+	start_monkey(){
+		while getopts "p:r" opt; do
+			case $opt in
+			p)
+			PACKAGE_NAME=$OPTARG ;;
+			r)
+			ROBUST=true ;;
+			\?)
+			usage
+			exit 1;;
+			esac
+		done
 
-	if [[ $ROBUST == true ]]; then
-		echo "true"
-		adb shell "monkey -p ${PACKAGE_NAME} --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 --pct-syskeys 0 --pct-appswitch 80 -v -v -v 1200000000 > /storage/sdcard0/monkey_log.txt  "
-	else
-		echo "false"
-		adb shell "monkey -p ${PACKAGE_NAME} --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 --pct-syskeys 0 -v -v -v --throttle 500 1200000000 > /storage/sdcard0/monkey_log.txt  "
-	fi
-}
+		echo "Start Monkey: $PACKAGE_NAME"
 
-stop_monkey(){
-	echo "Stop Monkey: ${PACKAGE_NAME}"
+		if [[ $ROBUST == true ]]; then
+			adb shell "monkey -p $PACKAGE_NAME --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 --pct-syskeys 0 --pct-appswitch 80 -v -v -v 1200000000 > /storage/sdcard0/monkey_log.txt  "
+		else
+			adb shell "monkey -p $PACKAGE_NAME --ignore-crashes --ignore-timeouts --ignore-security-exceptions --pct-trackball 0 --pct-nav 0 --pct-majornav 0 --pct-anyevent 0 --pct-syskeys 0 -v -v -v --throttle 500 1200000000 > /storage/sdcard0/monkey_log.txt  "
+		fi
+	}
 
-  adb shell ps | awk '/com\.android\.commands\.monkey/ { system("adb shell kill " $2) }'
-}
+	stop_monkey(){
+		echo "Stop Monkey: $PACKAGE_NAME"
 
-main(){
-check_device
+		adb shell ps | awk '/com\.android\.commands\.monkey/ { system("adb shell kill " $2) }'
+	}
 
-if [ $# == "0" ]; then
-  usage
-  exit
-fi
+	main(){
+		check_device
 
-if [[ $1 == "--help" ]] ||  [[ $1 == "-h" ]] ; then
-	usage
-elif [[ $1 == "start"  ]]; then
-	shift
-	start_monkey $@
-elif [[ $1 == "stop"  ]]; then
-	stop_monkey
-else
-	usage
-fi
-}
+		if [ $# == "0" ]; then
+			usage
+			exit
+		fi
 
-main $@
+		if [[ $1 == "--help" ]] ||  [[ $1 == "-h" ]] ; then
+			usage
+		elif [[ $1 == "start"  ]]; then
+			shift
+			start_monkey $@
+		elif [[ $1 == "stop"  ]]; then
+			stop_monkey
+		else
+			usage
+		fi
+	}
+
+	main $@
